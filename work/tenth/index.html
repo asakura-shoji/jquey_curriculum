@@ -21,7 +21,8 @@
       </div>
       <button id="js-search-button" class="search__btn">検索する</button>
     </div>
-    <ul class="lists"></ul>
+    <ul class="lists">
+    </ul>
   </div>
 </div>
 <script src="../../common/js/jquery.js"></script>
@@ -64,6 +65,71 @@
   //   // この中にデータ取得後の動きを記述していきます。
   // });
 //
+$(function(){
+
+  $('#js-search-button').click(function() {
+    $('.lists').empty();
+    var $SearchKeyword = $('#js-search-word').val();
+    if ($SearchKeyword === '') {
+      alert('文字を入力してください');
+    }else {
+    var $itemsHits = 20;
+
+    $.ajax(
+      {
+        url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
+        type: 'POST',
+        datatype: 'json',
+        data: {
+          hits: $itemsHits,
+          keyword: $SearchKeyword,
+          applicationId: '1019399324990976605',
+          booksGenreId: '001'
+        }
+      })
+    .then(function (data) {
+
+        if (0 < data.count) {
+          data.Items.forEach(function (item) {
+              var $listsItem =  '<li class="lists__item">'+
+                                   '<div class="lists__item__inner">'+
+                                      '<a href="' + item.Item.itemUrl + '" class="lists__item__link" target="_blank">'+
+                                       '<img src="' + item.Item.largeImageUrl + '"class="lists__item__img" alt="">'+
+                                       '<p class="lists__item__detail">作品名：'+item.Item.title+'</p>'+
+                                       '<p class="lists__item__detail">作者　：'+item.Item.author+'</p>'+
+                                       '<p class="lists__item__detail">出版社：'+item.Item.publisherName+'</p>'+
+                                      '</a>'+
+                                    '</div>'+
+                                   '</li>';
+              $('.lists').append($listsItem);
+            })
+          }else if(0 === data.count){
+            jQuery.fn.center = function () {
+              this.css("position","absolute");
+              //ブラウザの表示幅を取得
+              this.css("left", ( $(window).width() - this.width() ) / 2+$(window).scrollLeft() + "px");
+              return this;
+            };
+             $('.lists').text('検索結果0件です。\r\n別のキーワードで検索して下さい。')
+             $('.lists').center();
+          }else {
+              console.log($itemsHits);
+          }
+       })
+    .catch(function(error) {
+      console.log(error)
+      jQuery.fn.center = function () {
+        this.css("position","absolute");
+        this.css("left", ( $(window).width() - this.width() ) / 2+$(window).scrollLeft() + "px");
+        return this;
+      };
+      $('.lists').text('・サーバー接続エラーです。・keyword length must be over 2 characters');
+      $('.lists').center().css('color', 'red');
+    });
+  }
+  });
+});
+
 </script>
 </body>
 </html>

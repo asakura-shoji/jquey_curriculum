@@ -22,7 +22,7 @@
       <button id="js-search-button" class="search__btn">検索する</button>
     </div>
     <p class="null__word"></p>
-    <p class="error"></p>
+    <p class="null__word error"></p>
     <ul class="lists">
     </ul>
   </div>
@@ -69,7 +69,7 @@
 //
 $(function(){
 
-  $('#js-search-button').click(function() {
+  $('#js-search-button').on('click', function() {
     $('.lists').empty();
     $('.null__word').empty();
     $('.error').empty();
@@ -82,7 +82,7 @@ $(function(){
   });
 
 
-    function SelectView($SearchKeyword) {
+  function SelectView($SearchKeyword) {
     $.ajax(
       {
         url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
@@ -96,13 +96,13 @@ $(function(){
         }
       })
     .then(function (data) {
-        if (0 < data.count) {
+      if (0 < data.count) {
           BookItem(data);
-          }else if(0 === data.count){
-             $('.null__word').text('検索結果0件です。\r\n別のキーワードで検索して下さい。')
-          }else {
-          }
-       })
+        }else if(0 === data.count){
+          $('.null__word').text('検索結果0件です。\r\n別のキーワードで検索して下さい。')
+        }else {
+        }
+      })
     .catch(function(error) {
       console.log(error)
       $('.error').text('・サーバー接続エラーです。・keyword length must be over 2 characters');
@@ -123,8 +123,8 @@ $(function(){
                              '</li>';
         $('.lists').append($listsItem);
       });
-  }
-});
+    }
+  });
 
 
 </script>

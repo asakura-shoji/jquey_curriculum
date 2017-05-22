@@ -21,6 +21,8 @@
       </div>
       <button id="js-search-button" class="search__btn">検索する</button>
     </div>
+    <p class="null__word"></p>
+    <p class="error"></p>
     <ul class="lists">
     </ul>
   </div>
@@ -69,66 +71,61 @@ $(function(){
 
   $('#js-search-button').click(function() {
     $('.lists').empty();
+    $('.null__word').empty();
+    $('.error').empty();
     var $SearchKeyword = $('#js-search-word').val();
     if ($SearchKeyword === '') {
       alert('文字を入力してください');
     }else {
-    var $itemsHits = 20;
+      SelectView($SearchKeyword);
+    }
+  });
 
+
+    function SelectView($SearchKeyword) {
     $.ajax(
       {
         url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
         type: 'POST',
         datatype: 'json',
         data: {
-          hits: $itemsHits,
+          hits: 20,
           keyword: $SearchKeyword,
           applicationId: '1019399324990976605',
           booksGenreId: '001'
         }
       })
     .then(function (data) {
-
         if (0 < data.count) {
-          data.Items.forEach(function (item) {
-              var $listsItem =  '<li class="lists__item">'+
-                                   '<div class="lists__item__inner">'+
-                                      '<a href="' + item.Item.itemUrl + '" class="lists__item__link" target="_blank">'+
-                                       '<img src="' + item.Item.largeImageUrl + '"class="lists__item__img" alt="">'+
-                                       '<p class="lists__item__detail">作品名：'+item.Item.title+'</p>'+
-                                       '<p class="lists__item__detail">作者　：'+item.Item.author+'</p>'+
-                                       '<p class="lists__item__detail">出版社：'+item.Item.publisherName+'</p>'+
-                                      '</a>'+
-                                    '</div>'+
-                                   '</li>';
-              $('.lists').append($listsItem);
-            })
+          BookItem(data);
           }else if(0 === data.count){
-            jQuery.fn.center = function () {
-              this.css("position","absolute");
-              //ブラウザの表示幅を取得
-              this.css("left", ( $(window).width() - this.width() ) / 2+$(window).scrollLeft() + "px");
-              return this;
-            };
-             $('.lists').text('検索結果0件です。\r\n別のキーワードで検索して下さい。')
-             $('.lists').center();
+             $('.null__word').text('検索結果0件です。\r\n別のキーワードで検索して下さい。')
           }else {
-              console.log($itemsHits);
           }
        })
     .catch(function(error) {
       console.log(error)
-      jQuery.fn.center = function () {
-        this.css("position","absolute");
-        this.css("left", ( $(window).width() - this.width() ) / 2+$(window).scrollLeft() + "px");
-        return this;
-      };
-      $('.lists').text('・サーバー接続エラーです。・keyword length must be over 2 characters');
-      $('.lists').center().css('color', 'red');
+      $('.error').text('・サーバー接続エラーです。・keyword length must be over 2 characters');
     });
   }
-  });
+  function BookItem(data) {
+    data.Items.forEach(function (item) {
+      console.log(item)
+        var $listsItem =  '<li class="lists__item">'+
+                             '<div class="lists__item__inner">'+
+                                '<a href="' + item.Item.itemUrl + '" class="lists__item__link" target="_blank">'+
+                                 '<img src="' + item.Item.largeImageUrl + '"class="lists__item__img" alt="">'+
+                                 '<p class="lists__item__detail">作品名：'+item.Item.title+'</p>'+
+                                 '<p class="lists__item__detail">作者　：'+item.Item.author+'</p>'+
+                                 '<p class="lists__item__detail">出版社：'+item.Item.publisherName+'</p>'+
+                                '</a>'+
+                              '</div>'+
+                             '</li>';
+        $('.lists').append($listsItem);
+      });
+  }
 });
+
 
 </script>
 </body>
